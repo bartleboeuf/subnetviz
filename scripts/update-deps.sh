@@ -21,13 +21,23 @@ show_outdated() {
 # Update all dependencies (minor and patch versions)
 update_deps() {
   echo "📡 Updating dependencies to latest minor/patch versions..."
-  docker run --rm -v "$(pwd)/frontend:/app/frontend" "$DOCKER_IMAGE" npm update
+  docker run --rm -v "$(pwd)/frontend:/app/frontend" "$DOCKER_IMAGE" sh -c "npm update && chmod 777 package-lock.json"
 }
 
 # Update all dependencies (including major versions)
 update_deps_major() {
   echo "⚠️  Updating dependencies to latest versions (including major)..."
-  docker run --rm -v "$(pwd)/frontend:/app/frontend" "$DOCKER_IMAGE" sh -c "npm install -g npm-check-updates && ncu -u && npm install"
+  docker run --rm -v "$(pwd)/frontend:/app/frontend" "$DOCKER_IMAGE" sh -c "npm install -g npm-check-updates && ncu -u && npm install && chmod 777 package-lock.json"
+}
+
+# Update Python dependencies and refresh requirements.txt
+update_python_deps() {
+  echo "🐍 Updating Python dependencies in requirements.txt..."
+  docker run --rm -v "$(pwd):/app" -w /app python:3.14-slim sh -c '
+    pip install --no-cache-dir pip-tools &&
+    sed -E "s/(==|<=|>=|~=|!=)[^,;[:space:]]+//g" requirements.txt > /tmp/requirements.in &&
+    pip-compile --upgrade --output-file requirements.txt /tmp/requirements.in && chmod 777 requirements.txt
+  '
 }
 
 # Audit and fix vulnerabilities
@@ -52,8 +62,9 @@ Usage: ./scripts/update-deps.sh [command]
 Commands:
   build         Build the Docker image
   outdated      Check for outdated packages
-  update        Update packages (minor/patch versions)
-  major         Update packages (including major versions)
+  update        Update frontend packages (minor/patch versions)
+  update-python Update Python packages and refresh requirements.txt
+  major         Update frontend packages (including major versions)
   audit-fix     Run security audit and fix vulnerabilities
   shell         Start interactive shell in container
   help          Show this help message (default)
@@ -62,6 +73,7 @@ Examples:
   ./scripts/update-deps.sh build
   ./scripts/update-deps.sh outdated
   ./scripts/update-deps.sh update
+  ./scripts/update-deps.sh update-python
   ./scripts/update-deps.sh audit-fix
 
 EOF
@@ -78,6 +90,9 @@ case "$CMD" in
   update)
     build_image
     update_deps
+    ;;
+  update-python)
+    update_python_deps
     ;;
   major)
     build_image

@@ -5,23 +5,21 @@ WORKDIR /app/frontend
 
 # Stage 1: Install dependencies (cached separately for faster rebuilds)
 COPY frontend/package*.json ./
-RUN npm ci --omit=dev --legacy-peer-deps
+RUN npm ci
 
 # Stage 2: Copy source and build (changes to source don't invalidate npm layer)
 COPY frontend/src ./src
 COPY frontend/public ./public
+COPY frontend/index.html ./index.html
+COPY frontend/vite.config.mjs ./vite.config.mjs
 
 # Build frontend with production optimizations
-# CI=true prevents interactive mode, GENERATE_SOURCEMAP=false reduces build time
-# COMPRESS_LEVEL=9 enables maximum compression for static assets
 ENV NODE_ENV=production
 ENV CI=true
-ENV GENERATE_SOURCEMAP=false
-ENV REACT_APP_PRODUCTION=true
 RUN npm run build
 
 # Optional: Verify build output size
-RUN du -sh build/ && ls -lah build/static/js/ && ls -lah build/static/css/
+RUN du -sh build/ && ls -lah build/assets/
 
 # Production stage
 FROM public.ecr.aws/docker/library/python:3.14-slim
