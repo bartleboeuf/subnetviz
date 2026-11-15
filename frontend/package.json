@@ -2,6 +2,7 @@
   "name": "subnetviz",
   "version": "1.2.0",
   "description": "Visualize subnet allocation and fragmentation in AWS VPCs",
+  "author": "Bart LEBOEUF",
   "private": true,
   "dependencies": {
     "ip-address": "^10.7.6",

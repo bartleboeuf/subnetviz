@@ -1,4 +1,4 @@
-# SubnetViz v1.1.0
+# SubnetViz v1.2.0
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -35,7 +35,7 @@ If you think some useful information could be added to this application, create 
 ### Technical Features
 - **High Performance**: Connection pooling, parallel API calls, response caching
 - **Scalable Backend**: Async processing, pagination, memory-optimized large subnet operations
-- **Responsive Frontend**: React 18.3 with lazy loading, virtualized lists, smooth animations
+- **Responsive Frontend**: React 19 with lazy loading, virtualized lists, smooth animations
 - **Security**: Input validation on all parameters, minimal IAM permissions (read-only EC2)
 - **Error Handling**: Specific HTTP status codes with descriptive messages
 - **Health Checks**: Included for container health monitoring
@@ -50,7 +50,7 @@ Choose your deployment method:
 | Method | Requirements |
 |--------|--------------|
 | **Docker** (Recommended) | Docker Engine, AWS credentials |
-| **Local Development** | Python 3.11+, Node.js 24+, AWS credentials |
+| **Local Development** | Python 3.11+, Node.js 24+, npm, AWS credentials |
 
 ### AWS Permissions
 
@@ -78,14 +78,14 @@ The application requires read-only EC2 access:
 
 ```bash
 # Build the image
-docker build -t subnetviz:1.1.0 .
+docker build -t subnetviz:1.2.0 .
 
 # Run locally with AWS credentials
 docker run -it --rm \
   -p 5000:5000 \
   -e AWS_DEFAULT_REGION=us-east-1 \
   -v ~/.aws:/root/.aws:ro \
-  subnetviz:1.1.0
+  subnetviz:1.2.0
 
 # Access the application
 # http://localhost:5000
@@ -98,7 +98,7 @@ docker run -it --rm \
   -e AWS_ACCESS_KEY_ID=your_key \
   -e AWS_SECRET_ACCESS_KEY=your_secret \
   -e AWS_DEFAULT_REGION=us-east-1 \
-  subnetviz:1.1.0
+  subnetviz:1.2.0
 ```
 
 ### Option 2: Local Development
@@ -118,8 +118,9 @@ python app.py
 
 # Terminal 2: Start frontend dev server
 cd frontend
-npm start
-# Frontend dev server on http://localhost:3000
+npm run start
+# Vite dev server on http://localhost:5173
+# API requests are proxied to the backend at http://localhost:5000
 ```
 
 ## Deployment
@@ -133,10 +134,10 @@ The included `Dockerfile` uses multi-stage build for optimal production images:
 
 ```bash
 # Build for production
-docker build -t subnetviz:1.1.0 .
+docker build -t subnetviz:1.2.0 .
 
 # Test locally
-docker run -it --rm -p 5000:5000 -v ~/.aws:/root/.aws:ro subnetviz:1.1.0
+docker run -it --rm -p 5000:5000 -v ~/.aws:/root/.aws:ro subnetviz:1.2.0
 ```
 
 ### ECS / Fargate Deployment
@@ -343,16 +344,16 @@ Task role provides EC2 permissions automatically.
 docker ps
 
 # Rebuild image
-docker build --no-cache -t subnetviz:1.1.0 .
+docker build --no-cache -t subnetviz:1.2.0 .
 
 # Check logs
-docker run -it subnetviz:1.1.0
+docker run -it subnetviz:1.2.0
 ```
 
 **Frontend shows "Frontend not built yet"**
 ```bash
 # Rebuild Docker image
-docker build --no-cache -t subnetviz:1.1.0 .
+docker build --no-cache -t subnetviz:1.2.0 .
 ```
 
 ## Development
@@ -371,24 +372,22 @@ docker build --no-cache -t subnetviz:1.1.0 .
 ├── frontend/
 │   ├── package.json                 # Node.js dependencies
 │   ├── package-lock.json            # Locked npm versions
-│   ├── public/
-│   │   ├── index.html               # HTML entry point
-│   │   ├── favicon.ico              # App icon
-│   │   └── manifest.json            # PWA manifest
+│   ├── index.html                   # Vite HTML entry point
+│   ├── vite.config.mjs              # Vite config and API proxy
 │   ├── src/
-│   │   ├── App.js                   # Main React component
+│   │   ├── App.jsx                  # Main React component
 │   │   ├── App.css                  # App styling
-│   │   ├── index.js                 # React entry point
+│   │   ├── index.jsx                # React entry point
 │   │   ├── components/
-│   │   │   ├── About.js             # About dialog
-│   │   │   ├── IpVisualization.js   # IP grid visualization
+│   │   │   ├── About.jsx            # About dialog
+│   │   │   ├── IpVisualization.jsx  # IP grid visualization
 │   │   │   ├── IpVisualization.css  # IP grid styling
-│   │   │   ├── RegionSelector.js    # Region dropdown
-│   │   │   ├── Statistics.js        # IP stats panel
+│   │   │   ├── RegionSelector.jsx   # Region dropdown
+│   │   │   ├── Statistics.jsx       # IP stats panel
 │   │   │   ├── Statistics.css       # Stats styling
-│   │   │   ├── SubnetList.js        # Subnet list with filters & sorts
+│   │   │   ├── SubnetList.jsx       # Subnet list with filters & sorts
 │   │   │   ├── SubnetList.css       # Subnet list styling
-│   │   │   ├── VpcSelector.js       # VPC dropdown
+│   │   │   ├── VpcSelector.jsx      # VPC dropdown
 │   │   │   └── ...
 │   │   └── utils/
 │   │       └── api.js               # API client utilities
@@ -406,24 +405,25 @@ python app.py
 # Frontend (new terminal)
 cd frontend
 npm install
-npm start
+# Vite serves the frontend on http://localhost:5173
+npm run start
 ```
 
 ### Building for Production
 
 ```bash
 # Build Docker image
-docker build -t subnetviz:1.1.0 .
+docker build -t subnetviz:1.2.0 .
 
 # Test production build
-docker run -it --rm -p 5000:5000 -v ~/.aws:/root/.aws:ro subnetviz:1.1.0
+docker run -it --rm -p 5000:5000 -v ~/.aws:/root/.aws:ro subnetviz:1.2.0
 
 # Push to ECR (example)
 aws ecr get-login-password --region us-east-1 | \
   docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
 
-docker tag subnetviz:1.1.0 123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.1.0
-docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.1.0
+docker tag subnetviz:1.2.0 123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.2.0
+docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.2.0
 ```
 
 ## Deployment Examples
@@ -441,7 +441,7 @@ docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.1.0
   "containerDefinitions": [
     {
       "name": "subnetviz",
-      "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.1.0",
+      "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.2.0",
       "portMappings": [
         {
           "containerPort": 5000,
@@ -480,7 +480,7 @@ docker run -it --rm \
   -e AWS_PROFILE=my-profile \
   -e AWS_DEFAULT_REGION=us-east-1 \
   -v ~/.aws:/root/.aws:ro \
-  subnetviz:1.1.0
+  subnetviz:1.2.0
 
 # Using environment variables
 docker run -it --rm \
@@ -488,7 +488,7 @@ docker run -it --rm \
   -e AWS_ACCESS_KEY_ID=AKIA... \
   -e AWS_SECRET_ACCESS_KEY=... \
   -e AWS_DEFAULT_REGION=us-east-1 \
-  subnetviz:1.1.0
+  subnetviz:1.2.0
 ```
 
 ## License
@@ -497,7 +497,12 @@ MIT License - See LICENSE file for details.
 
 ## Version
 
-**v1.1.0*** - May 2026
+**v1.2.0** - November 2026
+
+- Migrate the frontend build and development server from Create React App to Vite
+- Update frontend and Python dependencies
+
+**v1.1.0** - May 2026
 
 - Bug fixes on react grid and list
 - Update dependencies on JS and Python

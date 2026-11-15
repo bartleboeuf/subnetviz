@@ -1,4 +1,4 @@
-# SubnetViz v1.1.0 - Quick Start Guide
+# SubnetViz v1.2.0 - Quick Start Guide
 
 Get SubnetViz running in **under 5 minutes** with Docker, or in **10 minutes** for local development.
 
@@ -49,7 +49,7 @@ export AWS_DEFAULT_REGION=us-east-1
 ### Step 2: Build Docker Image
 
 ```bash
-docker build -t subnetviz:1.1.0 .
+docker build -t subnetviz:1.2.0 .
 ```
 
 This creates a production-ready image with:
@@ -66,7 +66,7 @@ docker run -it --rm \
   -e AWS_PROFILE=my-profile \
   -e AWS_DEFAULT_REGION=us-east-1 \
   -v ~/.aws:/root/.aws:ro \
-  subnetviz:1.1.0
+  subnetviz:1.2.0
 ```
 
 **Using Environment Variables**:
@@ -76,7 +76,7 @@ docker run -it --rm \
   -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
   -e AWS_DEFAULT_REGION=us-east-1 \
-  subnetviz:1.1.0
+  subnetviz:1.2.0
 ```
 
 ### Step 4: Access the Application
@@ -100,7 +100,7 @@ aws sts get-caller-identity
 **Docker won't start**
 ```bash
 # Rebuild the image
-docker build --no-cache -t subnetviz:1.1.0 .
+docker build --no-cache -t subnetviz:1.2.0 .
 
 # Or check Docker is running
 docker ps
@@ -157,12 +157,12 @@ Running on http://127.0.0.1:5000
 Terminal 2:
 ```bash
 cd frontend
-npm start
+npm run start
 ```
 
-This opens your browser automatically to **http://localhost:3000**
+Open **http://localhost:5173** in your browser.
 
-The frontend connects to the backend at `http://localhost:5000`.
+The Vite development server proxies API requests to the backend at `http://localhost:5000`.
 
 ### Step 5: Start Using SubnetViz
 
@@ -171,7 +171,7 @@ Select region and VPC, then explore subnets!
 ### Development Tips
 
 **Hot Reload**:
-- Frontend: React dev server auto-reloads on code changes
+- Frontend: Vite hot-reloads on code changes
 - Backend: Add `FLASK_DEBUG=True` for Flask auto-reload
 
 **Stop Services**:
@@ -320,7 +320,7 @@ See [README.md](README.md#api-endpoints) for full API documentation.
 
 Build production image (same Docker build):
 ```bash
-docker build -t subnetviz:1.1.0 .
+docker build -t subnetviz:1.2.0 .
 ```
 
 Push to ECR:
@@ -330,10 +330,10 @@ aws ecr get-login-password --region us-east-1 | \
   docker login --username AWS --password-stdin YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
 
 # Tag image
-docker tag subnetviz:1.1.0 YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.1.0
+docker tag subnetviz:1.2.0 YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.2.0
 
 # Push to ECR
-docker push YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.1.0
+docker push YOUR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/subnetviz:1.2.0
 ```
 
 Then use image in ECS task definition with:
@@ -383,7 +383,7 @@ Large subnets use pagination:
 | `docker: command not found` | Docker not installed; install from docker.com |
 | `Cannot connect to Docker daemon` | Docker service not running; start Docker |
 | `port 5000 already in use` | Change port: `-p 6000:5000` or stop other apps |
-| `Frontend not built yet` | Rebuild image: `docker build --no-cache -t subnetviz:1.1.0 .` |
+| `Frontend not built yet` | Rebuild image: `docker build --no-cache -t subnetviz:1.2.0 .` |
 
 ### AWS Credential Issues
 

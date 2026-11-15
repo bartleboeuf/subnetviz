@@ -1,8 +1,16 @@
 import React from 'react';
+import packageInfo from '../../package.json';
 import './About.css';
 
 function About({ isOpen, onClose }) {
   if (!isOpen) return null;
+
+  const infoRows = [
+    ['Package', packageInfo.name],
+    ['Version', packageInfo.version],
+    ['Description', packageInfo.description],
+    ['Author', packageInfo.author]
+  ].filter(([, value]) => value);
 
   return (
     <>
@@ -49,18 +57,12 @@ function About({ isOpen, onClose }) {
 
         {/* Footer Info */}
         <div className="about-footer">
-          <div className="about-info-row">
-            <span>Version:</span>
-            <strong>1.1.0</strong>
-          </div>
-          <div className="about-info-row">
-            <span>Author:</span>
-            <strong>Bart LEBOEUF</strong>
-          </div>
-          <div className="about-info-row">
-            <span>Released:</span>
-            <strong>March 2026</strong>
-          </div>
+          {infoRows.map(([label, value]) => (
+            <div className="about-info-row" key={label}>
+              <span>{label}:</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
         </div>
 
         {/* Close Button */}
